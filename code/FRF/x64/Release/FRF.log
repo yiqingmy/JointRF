@@ -1,0 +1,57 @@
+﻿生成启动时间为 2018/7/11 9:44:58。
+     1>项目“E:\VScode\FRF\FRF\FRF.vcxproj”在节点 2 上(Build 个目标)。
+     1>ClCompile:
+         D:\Vs2015\vs15\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /GL /D NDEBUG /D _CONSOLE /D _CRT_SECURE_NO_WARNINGS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"x64\Release\FRF.pch" /Fo"x64\Release\\" /Fd"x64\Release\vc140.pdb" /Gd /TP /errorReport:prompt FRF.cpp MatchAndFuse.cpp
+         FRF.cpp
+     1>D:\opencv\build\install\include\opencv2/core/mat.hpp(2586): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>D:\opencv\build\install\include\opencv2/core/persistence.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>D:\opencv\build\install\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>D:\opencv\build\install\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>D:\opencv\build\install\include\opencv2/imgproc.hpp(592): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>FRF.cpp(54): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+     1>FRF.cpp(56): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+     1>FRF.cpp(83): warning C4800: “size_t”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>FRF.cpp(89): warning C4800: “size_t”: 将值强制为布尔值“true”或“false”(性能警告)
+     1>FRF.cpp(89): warning C4267: “参数”: 从“size_t”转换到“const int”，可能丢失数据
+         MatchAndFuse.cpp
+     1>D:\opencv\build\install\include\opencv2/core/mat.hpp(2586): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>D:\opencv\build\install\include\opencv2/core/persistence.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>D:\opencv\build\install\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>D:\opencv\build\install\include\opencv2/core/utility.hpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>D:\opencv\build\install\include\opencv2/imgproc.hpp(592): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+     1>MatchAndFuse.cpp(59): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(67): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(68): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(101): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(146): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(178): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(179): warning C4244: “初始化”: 从“float”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(225): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(226): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(276): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(277): warning C4244: “=”: 从“size_t”转换到“float”，可能丢失数据
+     1>MatchAndFuse.cpp(278): warning C4244: “=”: 从“size_t”转换到“float”，可能丢失数据
+     1>MatchAndFuse.cpp(291): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(292): warning C4244: “=”: 从“size_t”转换到“float”，可能丢失数据
+     1>MatchAndFuse.cpp(293): warning C4244: “=”: 从“size_t”转换到“float”，可能丢失数据
+     1>MatchAndFuse.cpp(334): warning C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(336): warning C4244: “=”: 从“size_t”转换到“float”，可能丢失数据
+     1>MatchAndFuse.cpp(337): warning C4244: “=”: 从“size_t”转换到“float”，可能丢失数据
+     1>MatchAndFuse.cpp(346): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+     1>MatchAndFuse.cpp(348): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+       Link:
+         D:\Vs2015\vs15\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"E:\VScode\FRF\x64\Release\FRF.exe" /INCREMENTAL:NO /NOLOGO opencv_aruco320.lib opencv_bgsegm320.lib opencv_bioinspired320.lib opencv_calib3d320.lib opencv_ccalib320.lib opencv_core320.lib opencv_datasets320.lib opencv_dpm320.lib opencv_face320.lib opencv_features2d320.lib opencv_flann320.lib opencv_fuzzy320.lib opencv_highgui320.lib opencv_imgcodecs320.lib opencv_imgproc320.lib opencv_line_descriptor320.lib opencv_ml320.lib opencv_objdetect320.lib opencv_optflow320.lib opencv_phase_unwrapping320.lib opencv_photo320.lib opencv_plot320.lib opencv_reg320.lib opencv_rgbd320.lib opencv_saliency320.lib opencv_shape320.lib opencv_stereo320.lib opencv_stitching320.lib opencv_structured_light320.lib opencv_superres320.lib opencv_surface_matching320.lib opencv_text320.lib opencv_video320.lib opencv_videoio320.lib opencv_videostab320.lib opencv_xfeatures2d320.lib opencv_ximgproc320.lib opencv_xobjdetect320.lib opencv_xphoto320.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"E:\VScode\FRF\x64\Release\FRF.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\VScode\FRF\x64\Release\FRF.lib" /MACHINE:X64 x64\Release\FRF.obj
+         x64\Release\guidedFilter.obj
+         x64\Release\MatchAndFuse.obj
+         x64\Release\stdafx.obj
+         正在生成代码
+         68 of 1215 functions ( 5.6%) were compiled, the rest were copied from previous compilation.
+           0 functions were new in current compilation
+           22 functions had inline decision re-evaluated but remain unchanged
+         已完成代码的生成
+         FRF.vcxproj -> E:\VScode\FRF\x64\Release\FRF.exe
+     1>已完成生成项目“E:\VScode\FRF\FRF\FRF.vcxproj”(Build 个目标)的操作。
+
+已成功生成。
+
+已用时间 00:00:02.90
