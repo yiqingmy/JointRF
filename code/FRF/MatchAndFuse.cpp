@@ -1,15 +1,12 @@
 #include"stdafx.h"
 #include<opencv2/opencv.hpp>
 #include<opencv2/xfeatures2d.hpp>
-//#include<opencv2/ximgproc.hpp>
 #include<iostream>
 #include"guidedFilter.h"
 #include"MatchAndFuse.h"
 #include<map>
 #include<fstream>
 #define _DEBUG
-#define SLOP_H_RANGE 20
-#define VER_DIS 100
 #define TOL_RANGE 10
 #define minHessian 1000
 
@@ -50,10 +47,11 @@ void MF::GetSaliencyMap(const cv::Mat& img, cv::Mat& saliency_map, std::vector<c
 	int max_o_num = 0;
 	
 	sel_o_num > 0 ? max_o_num = sel_o_num : max_o_num = real_o_num;
+
 	std::vector<cv::Mat>octave_maps(max_o_num);//Save the maps for the max response.
-	
-	//-----------For SURF--------------
-	int max_cols = img.cols;//The size of base image in DoG is twice of the initial image.
+
+
+	int max_cols = img.cols;
 	int max_rows = img.rows;
 	for (size_t odx = 0;odx < max_o_num;odx++) {//Create the maps for each octave to prepare for the max_maps.
 		int ratio = std::pow(2., odx);
@@ -74,8 +72,6 @@ void MF::GetSaliencyMap(const cv::Mat& img, cv::Mat& saliency_map, std::vector<c
 	}
 
 	dpts.clear();
-
-	//Find the max value for each octave in every position to get the saliency map.
 
 	//Resize the images into the same size.
     for (size_t mdx = 0;mdx < max_o_num;mdx++) {//Only resize the actual octaves.
@@ -127,7 +123,7 @@ void MF::MatchMap(const MF& s_img, const MF& m_img, cv::Mat& s_matched_img,cv::M
 	f_extractor->compute(f_gray, ff_keypoints, f_descriptor);
 
 	if (!flag) {//Calculate the descriptors of the base image only once.
-		//cv::Ptr<cv::xfeatures2d::SIFT>s_extractor = cv::xfeatures2d::SIFT::create();
+
 		cv::Ptr<cv::xfeatures2d::SurfDescriptorExtractor>s_extractor = cv::xfeatures2d::SurfFeatureDetector::create(minHessian, octave, layer, false , true);
 		cv::Mat s_descriptor;
 		std::vector<cv::KeyPoint>ss_keypoints(base_keypoints);
@@ -138,14 +134,21 @@ void MF::MatchMap(const MF& s_img, const MF& m_img, cv::Mat& s_matched_img,cv::M
 	//Match the images. All the images are matched with the base_image.
 	cv::Ptr<cv::DescriptorMatcher>matcher = cv::DescriptorMatcher::create("BruteForce");
 	std::vector<cv::DMatch>imatches;
+	//------Test the speed for different descritptor dimensions.----------------
+	
 	std::sort(imatches.begin(), imatches.end(), [](cv::DMatch& a, cv::DMatch& b) {return a.distance < b.distance;});
-
 	//To accelerate the algorithm, only reserve the first 20 matched points.
 	std::vector<cv::DMatch>matches;
-
+	
 	int d_matchs = imatches.size();
-	imatches.size() > 20? matches.assign(imatches.begin(), imatches.begin() + 20): (matches = imatches);
-
+	imatches.size() > 20 ? matches.assign(imatches.begin(), imatches.begin() + 20): (matches = imatches);
+	
+#ifdef _DEBUG
+	//Display the matched points
+	cv::Mat outmatches;
+	cv::drawMatches(f_img, f_keypoints, base_img, base_keypoints, matches, outmatches, cv::Scalar(0, 0, 255), cv::Scalar(0, 0, 255));
+	pair_match = outmatches;
+#endif
 	//Transfer the matches into points.
 	std::vector<cv::Point2f> f_points;
 	std::vector<cv::Point2f> base_points;
@@ -159,72 +162,63 @@ void MF::MatchMap(const MF& s_img, const MF& m_img, cv::Mat& s_matched_img,cv::M
 	//Define a structure to record the data of the votes and corresponding distance.
 	typedef struct {
 		int vote;
-		int dis;
+		int x_dis;
+		int y_dis;
+		std::vector<int>x_difs;
+		std::vector<int>y_difs;
 	}vd;
 
 	vd temp;
-	temp.dis = 0;
+	temp.x_dis = 0;
+	temp.y_dis = 0;
 	temp.vote = 0;
-	std::vector<vd>x_vds;
-	std::vector<vd>y_vds;
-	x_vds.push_back(temp);
-	y_vds.push_back(temp);
+	std::vector<vd>vds;
+	vds.push_back(temp);
 
-	size_t x_sth = 0;
-	size_t y_sth = 0;
+	size_t sth = 0;
 
 	std::vector<cv::DMatch> n_matches;
 	for (size_t fth = 0;fth < f_points.size();fth++) {
-		int y_dis = f_points[fth].y - base_points[fth].y;
-		int x_dis = f_points[fth].x - base_points[fth].x;
-		double slop;
-		if (x_dis == 0) {
-			slop = 0;
-		}
-		else {
-			slop = y_dis / x_dis;
-		}
-		if (abs(slop)<SLOP_H_RANGE) {//Only preserve the ideal matched points.
-			n_matches.push_back(matches[fth]);
-			//Record the common shift transform.
-			for (x_sth = 0; x_sth < x_vds.size(); x_sth++) {
-				int x_diff = abs(x_dis - x_vds[x_sth].dis);
-				if (x_diff<TOL_RANGE) {
-					x_vds[x_sth].vote++;
-					if (x_dis<x_vds[x_sth].dis) {
-						x_vds[x_sth].dis = x_dis;
-					}
-					break;
+		int dy = f_points[fth].y - base_points[fth].y;
+		int dx = f_points[fth].x - base_points[fth].x;
+
+		//--------------------------------------
+		n_matches.push_back(matches[fth]);
+		for (sth = 0; sth < vds.size(); sth++) {
+			int x_simi = abs(dx - vds[sth].x_dis);
+			int y_simi = abs(dy - vds[sth].y_dis);
+			if (x_simi<TOL_RANGE && y_simi<TOL_RANGE) {
+				if (dx < vds[sth].x_dis) {
+					vds[sth].x_dis = dx;
 				}
-			}
-			if (x_sth== x_vds.size()) {
-				vd x_temp;
-				x_temp.dis = x_dis;
-				x_temp.vote = 1;
-				x_vds.push_back(x_temp);	
-			}
-			for (y_sth = 0;y_sth < y_vds.size();y_sth++) {
-				int y_diff = abs(y_dis - y_vds[y_sth].dis);
-				if (y_diff<TOL_RANGE) {
-					y_vds[y_sth].vote++;
-					if (y_dis<y_vds[y_sth].dis) {
-						y_vds[y_sth].dis = y_dis;
-					}
-					break;
+				if (dy < vds[sth].y_dis) {
+					vds[sth].y_dis = dy;
 				}
-			}
-			if (y_sth == x_vds.size()) {
-				vd y_temp;
-				y_temp.dis = y_dis;
-				y_temp.vote = 1;
-				y_vds.push_back(y_temp);
-			}
-		}//End for all the ideal matched points.
+				vds[sth].vote++;
+				vds[sth].x_difs.push_back(dx);
+				vds[sth].y_difs.push_back(dy);
+				break;
+			} 
+		}
+
+		if (sth==vds.size()) {
+				vd temp;
+				temp.x_dis = dx;
+				temp.y_dis = dy;
+				temp.vote = 1;
+				temp.x_difs.push_back(dx);
+				temp.y_difs.push_back(dy);
+				vds.push_back(temp);
+		}
+
 	}//End for all the matched points.
 
-	val_num = n_matches.size();
-	int match_size = matches.size();
-	ratio = (double)val_num/ match_size;
+#ifdef _DEBUG
+	 //Display the matched points
+	cv::Mat n_outmatches;
+	cv::drawMatches(f_img, f_keypoints, base_img, base_keypoints, n_matches, n_outmatches, cv::Scalar(0, 0, 255), cv::Scalar(0, 0, 255));
+	fine_pairmatch = n_outmatches;
+#endif
 
 	if (n_matches.size()==0) {//Save the original image as the matched image.
 		s_matched_img = s_img.saliency_map;
@@ -233,29 +227,24 @@ void MF::MatchMap(const MF& s_img, const MF& m_img, cv::Mat& s_matched_img,cv::M
 	}
 	else {//Select the highest vote to construct the transfer matrix.
 
-		std::sort(x_vds.begin(), x_vds.end(), [](vd& a, vd& b) {return a.vote < b.vote;});
-		int x_max_vote = x_vds[x_vds.size() - 1].vote;
-		//For the same vote, find the minimum value of the distance.
-		int x_min_dis= x_vds[x_vds.size() - 1].dis;
-		for (size_t dth = 0; dth < x_vds.size()&& x_vds[dth].vote==x_max_vote;dth++) {
-			if (x_vds[dth].dis<x_min_dis) {
-				x_min_dis = x_vds[dth].dis;
-			}
-		}
+		std::sort(vds.begin(), vds.end(), [](vd& a, vd& b) {return a.vote < b.vote;});
+		int max_vote = vds[vds.size() - 1].vote;
 
-		std::sort(y_vds.begin(), y_vds.end(), [](vd& a, vd& b) {return a.vote < b.vote;});
-		int y_max_vote = y_vds[y_vds.size() - 1].vote;
-		//For the same vote, find the minimum value of the distance.
-		int y_min_dis = y_vds[y_vds.size() - 1].dis;
-		for (size_t dth = 0; dth < y_vds.size()&& y_vds[dth].vote == y_max_vote;dth++) {
-			if (y_vds[dth].dis<y_min_dis) {
-				y_min_dis = y_vds[dth].dis;
-			}
-		}
+		val_num = max_vote;
+		int match_size = f_points.size();
+		ratio = (double)val_num / match_size;
+
+		std::sort(vds[vds.size() - 1].x_difs.begin(), vds[vds.size() - 1].x_difs.end());
+		std::sort(vds[vds.size() - 1].y_difs.begin(), vds[vds.size() - 1].y_difs.end());
+		int d_length = vds[vds.size() - 1].x_difs.size()/2;
+		int x_min_dis = vds[vds.size() - 1].x_difs[d_length];
+		int y_min_dis = vds[vds.size() - 1].y_difs[d_length];
+
+		vds.clear();
+
 		//Construct the transform matrix
 		int x_t = x_min_dis;
 		int y_t = y_min_dis;
-
 		cv::Mat homo = (cv::Mat_<double>(2,3)<<1,0,-x_t,0,1,-y_t);
 		//Warp the saliency map.
 		cv::Mat saliency_map = s_img.saliency_map;
@@ -307,7 +296,6 @@ void MF::MatchMap(const MF& s_img, const MF& m_img, cv::Mat& s_matched_img,cv::M
 }
 
 void MF::GetActivityMap(const std::vector<MF>& s_imgs, cv::Mat& activity_map,const int s,const bool button,const int r,const double eps) {
-
 	//Get the origianl mask of the image.
 	if(!button){
 		cv::Mat max_matched_map = cv::Mat::zeros(cv::Size(s_imgs[0].s_matched_map.cols, s_imgs[0].s_matched_map.rows), s_imgs[0].s_matched_map.type());
@@ -321,7 +309,7 @@ void MF::GetActivityMap(const std::vector<MF>& s_imgs, cv::Mat& activity_map,con
 			o_masks.push_back(o_mask);
 		}
 
-	//	//To insure the pixel value of each position only comes from one image.
+		//To insure the pixel value of each position only comes from one image.
 		cv::Mat sum_mask = cv::Mat::zeros(cv::Size(o_masks[0].cols, o_masks[0].rows), o_masks[0].type());
 		for (size_t mdx = 0;mdx < o_masks.size();mdx++) {
 			cv::Mat temp_mask = o_masks[mdx].mul(1. / 255);
@@ -354,7 +342,7 @@ void MF::GetActivityMap(const std::vector<MF>& s_imgs, cv::Mat& activity_map,con
 		MF::i_masks = o_masks;
 		
 	}
-	////Refine the original masks with guided filter.
+	//Refine the original masks with guided filter.
 	cv::Mat fine_mask;
 	cv::Mat src_gray;
 	if (s_imgs[s].src_img.channels()==3) {

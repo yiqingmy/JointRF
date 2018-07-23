@@ -41,7 +41,7 @@ int main(int arg, char* argv[])
 	vector<MF> MF_imgs;
 
 	//-----------------------
-	int oth = 4;
+	int oth = 5;
 	int lth = 2;
 	//-----------------------
 
