@@ -135,7 +135,8 @@ void MF::MatchMap(const MF& s_img, const MF& m_img, cv::Mat& s_matched_img,cv::M
 	cv::Ptr<cv::DescriptorMatcher>matcher = cv::DescriptorMatcher::create("BruteForce");
 	std::vector<cv::DMatch>imatches;
 	//------Test the speed for different descritptor dimensions.----------------
-	
+
+	matcher->match(f_descriptor, base_descriptor, imatches);
 	std::sort(imatches.begin(), imatches.end(), [](cv::DMatch& a, cv::DMatch& b) {return a.distance < b.distance;});
 	//To accelerate the algorithm, only reserve the first 20 matched points.
 	std::vector<cv::DMatch>matches;
